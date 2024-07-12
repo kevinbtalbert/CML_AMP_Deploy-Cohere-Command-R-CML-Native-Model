@@ -1,6 +1,8 @@
 # Deploy Cohere's Command R CML Native Model as a Cloudera AMP
 Deploy Cohere's Command R model using CML native models.
 
+![](/images/cohere-logo.png)
+
 C4AI Command-R is a research release of a 35 billion parameter highly performant generative model. Command-R is a large language model with open weights optimized for a variety of use cases including reasoning, summarization, and question answering. Command-R has the capability for multilingual generation evaluated in 10 languages and highly performant RAG capabilities.
 
 This project walks through a deployment and hosting of a Large Languge Model (LLM) within CML. The project is designed to be deployed as an AMP from the Cloudera AMP catalog.
