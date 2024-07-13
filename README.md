@@ -1,5 +1,6 @@
 # Deploy Cohere's Command R CML Native Model as a Cloudera AMP
-Deploy Cohere's Command R model using CML native models.
+
+**Deploy Cohere's Command R model using CML native models.**
 
 ![](/images/cohere-logo.png)
 
