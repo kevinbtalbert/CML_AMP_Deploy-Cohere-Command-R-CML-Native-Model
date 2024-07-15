@@ -20,7 +20,7 @@ bnb_config = BitsAndBytesConfig(
 )
 
 # Create a model object with above parameters
-model_name = "CohereForAI/c4ai-command-r-v01"
+model_name = "CohereForAI/c4ai-command-r-v01-4bit"
 
 model = AutoModelForCausalLM.from_pretrained(
     model_name, 
