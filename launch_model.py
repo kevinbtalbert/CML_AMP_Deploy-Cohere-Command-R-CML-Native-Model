@@ -13,10 +13,11 @@ hf_access_token = os.environ.get('HF_ACCESS_TOKEN')
 # This way each weight in the model will take up 4 bits of memory. 
 compute_dtype = getattr(torch, "float16")
 bnb_config = BitsAndBytesConfig(
-    load_in_4bit=True,
-    bnb_4bit_quant_type="nf4",
-    bnb_4bit_compute_dtype=compute_dtype,
-    bnb_4bit_use_double_quant=True,
+    llm_int8_enable_fp32_cpu_offload=True, 
+    load_in_4bit = True
+    # bnb_4bit_quant_type="nf4",
+    # bnb_4bit_compute_dtype=compute_dtype,
+    # bnb_4bit_use_double_quant=True,
 )
 
 # Create a model object with above parameters
@@ -25,7 +26,10 @@ model_name = "CohereForAI/c4ai-command-r-v01-4bit"
 model = AutoModelForCausalLM.from_pretrained(
     model_name, 
     quantization_config=bnb_config,
-    device_map='auto',
+    low_cpu_mem_usage=True,
+    offload_folder="offload",
+    offload_state_dict=True,
+    # device_map='auto',
     token=hf_access_token
 )
 
