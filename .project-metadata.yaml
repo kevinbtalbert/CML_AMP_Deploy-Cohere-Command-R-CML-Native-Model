@@ -24,8 +24,8 @@ tasks:
     short_summary: Cohere Command R
     default_resources:
       cpu: 4
-      memory: 16
-      gpu: 2
+      memory: 48
+      gpu: 1
     default_replication_policy:
       type: fixed
       num_replicas: 1
