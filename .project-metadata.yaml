@@ -25,7 +25,7 @@ tasks:
     default_resources:
       cpu: 4
       memory: 16
-      gpu: 1
+      gpu: 2
     default_replication_policy:
       type: fixed
       num_replicas: 1

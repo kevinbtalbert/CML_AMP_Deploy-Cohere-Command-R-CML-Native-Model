@@ -31,10 +31,10 @@ Deploy the model by:
     }
    ```
 - Pick Runtime
-  - PBJ Workbench -- Python 3.9 -- Nvidia GPU -- 2023.08
+  - PBJ Workbench -- Python 3.9 -- Nvidia GPU -- 2024.05
 - Set Resource Profile
   - At least 4CPU / 16MEM
-  - 1 GPU
+  - 2 GPU
 - Click `Deploy Model`
 - Wait until it is Deployed
 
