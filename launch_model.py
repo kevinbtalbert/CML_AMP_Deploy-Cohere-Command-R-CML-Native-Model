@@ -1,11 +1,14 @@
 import bitsandbytes as bnb
 from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from accelerate import Accelerator
 import os
 import time
 import torch
-import torch.nn as nn
 import cml.metrics_v1 as metrics
 import cml.models_v1 as models
+
+# Initialize Accelerator
+accelerator = Accelerator()
 
 # Environment setup
 os.environ['TORCH_SHOW_CPP_STACKTRACES'] = '1'
@@ -31,26 +34,11 @@ model = AutoModelForCausalLM.from_pretrained(
     token=hf_access_token
 )
 
-# Distribute model across multiple GPUs
-if torch.cuda.device_count() > 1:
-    print("Let's use", torch.cuda.device_count(), "GPUs!")
-    model = nn.DataParallel(model)
+# Prepare the model for distributed training
+model = accelerator.prepare(model)
 
-model.to("cuda")
-
-# Apply gradient checkpointing
+# Enable gradient checkpointing
 model.gradient_checkpointing_enable()
-
-# Args helper
-def opt_args_value(args, arg_name, default):
-    """
-    Helper function to interact with LLMs parameters for each call to the model.
-    Returns value provided in args[arg_name] or the default value provided.
-    """
-    if arg_name in args.keys():
-        return args[arg_name]
-    else:
-        return default
 
 # Define tokenizer parameters
 tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True, token=hf_access_token)
@@ -68,16 +56,16 @@ def generate(prompt, max_new_tokens=50, temperature=0, repetition_penalty=1.0, n
     top_p              - cumulative probability to determine how many tokens to keep (i.e. enough tokens will be considered, so their combined probability reaches top_p)
     top_k              - number of highest-probability tokens to keep (i.e. only top_k "best" tokens will be considered for response)
     """
-    batch = tokenizer(prompt, return_tensors='pt').to("cuda")
+    batch = tokenizer(prompt, return_tensors='pt').to(accelerator.device)
   
     with torch.cuda.amp.autocast():
-        output_tokens = model.module.generate(**batch,
-                                              max_new_tokens=max_new_tokens,
-                                              repetition_penalty=repetition_penalty,
-                                              temperature=temperature,
-                                              num_beams=num_beams,
-                                              top_p=top_p,
-                                              top_k=top_k)
+        output_tokens = model.generate(**batch,
+                                       max_new_tokens=max_new_tokens,
+                                       repetition_penalty=repetition_penalty,
+                                       temperature=temperature,
+                                       num_beams=num_beams,
+                                       top_p=top_p,
+                                       top_k=top_k)
   
     output = tokenizer.decode(output_tokens[0], skip_special_tokens=True)
   
