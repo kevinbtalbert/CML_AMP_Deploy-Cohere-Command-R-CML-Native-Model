@@ -33,6 +33,9 @@ model = AutoModelForCausalLM.from_pretrained(
     token=hf_access_token
 )
 
+# Distribute model across multiple GPUs
+model = torch.nn.DataParallel(model)
+
 # Args helper
 def opt_args_value(args, arg_name, default):
   """
