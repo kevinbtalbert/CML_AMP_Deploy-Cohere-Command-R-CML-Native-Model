@@ -6,6 +6,9 @@ import torch
 import cml.metrics_v1 as metrics
 import cml.models_v1 as models
 
+# Environment setup
+os.environ['TORCH_SHOW_CPP_STACKTRACES'] = '1'
+os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 hf_access_token = os.environ.get('HF_ACCESS_TOKEN')
 
 # Quantization
