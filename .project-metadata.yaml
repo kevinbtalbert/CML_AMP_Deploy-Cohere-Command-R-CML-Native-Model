@@ -12,8 +12,8 @@ environment_variables:
     required: true
 
 runtimes: 
-  - editor: Workbench
-    kernel: Python 3.9
+  - editor: PBJ Workbench
+    kernel: Python 3.11
     edition: Nvidia GPU
   
 tasks:
