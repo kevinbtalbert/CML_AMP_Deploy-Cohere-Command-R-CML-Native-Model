@@ -1,7 +1,7 @@
 name: Cohere Command R Standalone Model Deployment
 description: This AMP deploys Cohere's Command R model as a CML model endpoint, callable via an API. Model is hosted within CML and requires GPU node with 16GB memory and 4 cores minimum.
 author: Cloudera
-date: "2024-7-12"
+date: "2024-7-15"
 specification_version: 1.0
 prototype_version: 1.0
 
@@ -24,8 +24,8 @@ tasks:
     short_summary: Cohere Command R
     default_resources:
       cpu: 4
-      memory: 48
-      gpu: 1
+      memory: 16
+      gpu: 2
     default_replication_policy:
       type: fixed
       num_replicas: 1

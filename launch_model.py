@@ -1,5 +1,5 @@
 import bitsandbytes as bnb
-from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig
+from transformers import AutoTokenizer, AutoModelForCausalLM, BitsAndBytesConfig, pipelines
 from accelerate import init_empty_weights, infer_auto_device_map, dispatch_model
 import os
 import time
@@ -8,8 +8,6 @@ import cml.metrics_v1 as metrics
 import cml.models_v1 as models
 
 # Environment setup
-os.environ['TORCH_SHOW_CPP_STACKTRACES'] = '1'
-os.environ['PYTORCH_CUDA_ALLOC_CONF'] = 'expandable_segments:True'
 hf_access_token = os.environ.get('HF_ACCESS_TOKEN')
 
 # Quantization
@@ -19,32 +17,29 @@ bnb_config = BitsAndBytesConfig(
     load_in_4bit=True
 )
 
+print("Creating model object...")
 # Create a model object with above parameters
 model_name = "CohereForAI/c4ai-command-r-v01-4bit"
 
-# Initialize model with empty weights
-with init_empty_weights():
-    model = AutoModelForCausalLM.from_pretrained(
-        model_name, 
-        quantization_config=bnb_config,
-        low_cpu_mem_usage=True,
-        offload_folder="offload",
-        offload_state_dict=True,
-        token=hf_access_token
-    )
-
-# Infer device map
-device_map = infer_auto_device_map(model, max_memory={"cpu": "48GB", "cuda:0": "16GB"})
-
-# Dispatch model according to the inferred device map
-model = dispatch_model(model, device_map=device_map)
-
-# Enable gradient checkpointing
-model.gradient_checkpointing_enable()
-
+print("Loading tokenizer...")
 # Define tokenizer parameters
-tokenizer = AutoTokenizer.from_pretrained(model_name, trust_remote_code=True, token=hf_access_token)
+tokenizer = AutoTokenizer.from_pretrained(model_name, token=hf_access_token)
 tokenizer.pad_token = tokenizer.eos_token
+
+# print("Initializing model with empty weights...")
+# # Initialize model with empty weights
+# with init_empty_weights():
+model = AutoModelForCausalLM.from_pretrained(
+    model_name,
+    device_map='balanced_low_0',
+    quantization_config=bnb_config,
+    low_cpu_mem_usage=True,
+    offload_folder="offload",
+    offload_state_dict=True,
+    token=hf_access_token
+)
+
+print("Environment setup complete!")
 
 # Args helper
 def opt_args_value(args, arg_name, default):
