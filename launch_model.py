@@ -41,6 +41,7 @@ model = AutoModelForCausalLM.from_pretrained(
 
 print("Environment setup complete!")
 
+
 # Args helper
 def opt_args_value(args, arg_name, default):
     """
@@ -64,16 +65,30 @@ def generate(prompt, max_new_tokens=50, temperature=0, repetition_penalty=1.0, n
     top_p              - cumulative probability to determine how many tokens to keep (i.e. enough tokens will be considered, so their combined probability reaches top_p)
     top_k              - number of highest-probability tokens to keep (i.e. only top_k "best" tokens will be considered for response)
     """
-    batch = tokenizer(prompt, return_tensors='pt').to("cuda")
+
+    # Format message with the command-r chat template
+    sample_message = [{"role": "user", "content": "Hello, how are you?"}]
+    messages = [{"role": "user", "content": prompt}]
+    batch = tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True, return_tensors="pt").to("cuda")
+    ## <BOS_TOKEN><|START_OF_TURN_TOKEN|><|USER_TOKEN|>Hello, how are you?<|END_OF_TURN_TOKEN|><|START_OF_TURN_TOKEN|><|CHATBOT_TOKEN|>
+
+    # batch = tokenizer(prompt, return_tensors='pt').to("cuda")
   
     with torch.cuda.amp.autocast():
-        output_tokens = model.generate(**batch,
-                                       max_new_tokens=max_new_tokens,
-                                       repetition_penalty=repetition_penalty,
-                                       temperature=temperature,
-                                       num_beams=num_beams,
-                                       top_p=top_p,
-                                       top_k=top_k)
+        output_tokens = model.generate(
+            batch, 
+            max_new_tokens=max_new_tokens, 
+            do_sample=True, 
+            temperature=temperature,
+        )
+
+        # output_tokens = model.generate(**batch,
+        #                                max_new_tokens=max_new_tokens,
+        #                                repetition_penalty=repetition_penalty,
+        #                                temperature=temperature,
+        #                                num_beams=num_beams,
+        #                                top_p=top_p,
+        #                                top_k=top_k)
   
     output = tokenizer.decode(output_tokens[0], skip_special_tokens=True)
   
